@@ -30,11 +30,26 @@ module Formotion
         raise Formotion::InvalidClassError, "Attempted FormController.form = #{form.inspect} should be of type Formotion::Form or Hash"
       end
       @form = form
+
+      if @viewDidLoadCalled
+        initFormFromViewDidLoad
+        self.tableView.reloadData
+      end
     end
 
     def viewDidLoad
       super
 
+      @viewDidLoadCalled = true
+
+      self.tableView.allowsSelectionDuringEditing = true
+
+      if @form
+        initFormFromViewDidLoad
+      end
+    end
+
+    def initFormFromViewDidLoad
       # Triggers this block when the enter key is pressed
       # while editing the last text field.
       @form.sections[-1] && @form.sections[-1].rows && @form.sections[-1].rows[-1] && @form.sections[-1].rows[-1].on_enter do |row|
